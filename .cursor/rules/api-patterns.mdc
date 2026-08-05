@@ -1,0 +1,101 @@
+---
+description: API 接口核心约定。返回值、Session、鉴权、命名、_id 陷阱。
+alwaysApply: false
+globs: tasks/**/*.py
+---
+
+# API 接口核心约定
+
+> ⚠️ 源文件：`CLAUDE.md`。修改全局规则请同步更新 `CLAUDE.md`。
+
+参考模板：`@api-patterns-ref.mdc`。翻译：`@api-i18n.mdc`。日志：`@api-logging.mdc`。
+
+## 模块分层
+
+| 层 | 文件 | 职责 |
+|----|------|------|
+| 路由 | `urls.py` | 绑定 view：`api.<method>(path, summary=...)(fn)` |
+| 接口 | `view/<业务>.py` | 校验、调 service、组装返回；**管事务**（try/commit/except/rollback） |
+| 业务 | `service.py` | 规则、SQL/ORM、状态机；**禁 commit/rollback** |
+| 数据 | `models.py` / `schemas.py` | ORM + Pydantic；只放形状，不放逻辑 |
+| DDL | `<表名>.sql` | 建表脚本 |
+
+## 路由绑定
+
+- `urls.py` 用调用形式，**禁** view 上写 `@router.get/post`
+- 路径：`/<模块>/<子业务>/<动作>/`，全小写 snake_case，尾斜杠
+- 每条路由必 `summary="<中文>"`
+
+## 鉴权
+
+```python
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.AuthUrlPart + "/login/")
+# 签名末尾注入
+token: str = Depends(oauth2_scheme)
+# 取用户 — 用主仓 Depends(get_current_user)，禁自行解析 token
+```
+
+## Session
+
+| 参数 | 库 | 用途 |
+|------|-----|------|
+| `bi_session` | BI 库（只读） | 报表、列表、统计 |
+| `inter_session` | 主业务库（读写） | 增改、状态变更 |
+
+- 所有 SQL 必须 `await`
+- service 用 session → `async def`；view 调用 → `await service.xxx(...)`
+- 同接口读 BI + 写主库 → 两者同时注入
+- **禁** `inter_session` 当只读
+
+## 命名
+
+- Python 标识符：`snake_case`
+- HTTP 字段：**保留驼峰**（`pageSize`、`isDownload`）
+- 大小写不一致 → `Field(alias=...)` 显式映射，**禁**隐式约定
+
+## 返回值
+
+```python
+# 成功
+{"code": 200, "msg": "success", "data": data}
+# 业务异常
+{"code": 40000, "msg": "<描述>", "data": {}}
+```
+
+- 业务码返回 dict，**禁** `raise HTTPException`；HTTP 层始终 200
+- 错误码：`200` 成功 / `40000` 异常（所有业务异常统一用 40000，**禁**其他错误码）
+- 文件下载（`is_download=1`）→ `StreamingResponse` / `FileResponse`，不套 code/msg/data
+
+## 用户
+
+| 语义 | 取值 |
+|------|------|
+| `user_id` | `request.user.id` |
+| `user_name` | `request.user.display_name` |
+
+查显示名 → `UserService.get_user_name_by_userid`（`apps.common.service.user`），session 与查询同库。
+
+```python
+from apps.common.service.user import UserService
+
+# user_id == 0 → 固定 "System"，禁查库
+display = "System" if uid == 0 else await UserService.get_user_name_by_userid(session, uid)
+# 批量 → {user_id: name}
+name_map = await UserService.get_user_name_by_userid(session, user_ids)
+```
+
+## _id 主键陷阱（Pydantic v1）
+
+v1 忽略下划线开头字段，**禁**写 `_id: Optional[int] = None`，必须：
+
+```python
+id: Optional[int] = Field(None, alias="_id")
+class Config:
+    allow_population_by_field_name = True
+# SQL 写 _id，Python 用 body.id
+```
+
+## Pydantic v1 约束
+
+- **禁** v2 语法（`ConfigDict` / `model_config` / `model_validator`）
+- 可变默认值：`Field(default_factory=list)`，**禁** `= []` / `= {}`

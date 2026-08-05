@@ -1,0 +1,15 @@
+{
+  "key": "tags",
+  "title": "标签",
+  "options": [
+    { "label": "价偏", "value": 1 },
+    { "label": "大额", "value": 2 },
+    { "label": "样品", "value": 4 },
+    { "label": "缺货", "value": 8 },
+    { "label": "拆单", "value": 16 },
+    { "label": "特殊作业", "value": 32 },
+    { "label": "紧急", "value": 64 },
+    { "label": "实收差异", "value": 128 },
+    { "label": "回款超期", "value": 256 }
+  ]
+}

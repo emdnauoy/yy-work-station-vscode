@@ -1,0 +1,51 @@
+---
+description: 操作日志约定。
+alwaysApply: false
+globs: tasks/**/view/**/*.py
+---
+
+# 操作日志
+
+> ⚠️ 源文件：`CLAUDE.md`。修改全局规则请同步更新 `CLAUDE.md`。
+
+增改必记，与业务同事务。
+
+## 函数
+
+- `log_async_create`：`apps.common.service.yy_log`
+- `deep_diff_create`（新建）/ `deep_diff`（更新）：`apps.<模块>.change_diff`
+
+## 规则
+
+- view 层 `commit` 前调用，传同一 `inter_session`，随 view 提交/回滚
+- `operation_details` → `json.dumps(..., ensure_ascii=False, default=...)`
+- 更新：`deep_diff` 非空才记；新建：无差异也记
+- 子业务：`refer_type` 加主业务前缀（如 `分销订单-修改行`），`refer_table`/`refer_id` 指主表
+
+| 字段 | 约定 |
+|------|------|
+| `types` | `新建` / `更新` |
+| `refer_type` | `<模块中文>-新建` 或 `-修改` |
+| `refer_table` | 物理表名，如 `data_distribution_order` |
+| `refer_id` | 主键 `_id` |
+| `username` | 当前登录用户名 |
+
+`ignore_keys` 至少排除：`_id`、`create_time`、`update_time`、`create_by`、`update_by`、`button_list`
+
+```python
+from apps.common.service.yy_log import log_async_create
+from apps.system.offline_customer.change_diff import deep_diff_create, deep_diff
+
+IGNORE = {"_id", "create_time", "update_time", "create_by", "update_by", "button_list"}
+
+if is_create:
+    details = json.dumps(deep_diff_create(original_data) or {}, ensure_ascii=False, default=_log_json_default)
+    await log_async_create(username=user_name, types="新建", operation_details=details,
+        session=inter_session, refer_type="<模块>-新建", refer_table="data_<表>", refer_id=entity_id)
+else:
+    clean_logs = deep_diff(old_data=old_data, new_data=original_data, ignore_keys=IGNORE)
+    if clean_logs:
+        details = json.dumps(clean_logs, ensure_ascii=False, default=json_serializer)
+        await log_async_create(username=user_name, types="更新", operation_details=details,
+            session=inter_session, refer_type="<模块>-修改", refer_table="data_<表>", refer_id=entity_id)
+```

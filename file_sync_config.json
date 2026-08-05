@@ -1,0 +1,30 @@
+{
+  "tasks": [
+    {
+      "name": "distribution_order",
+      "enabled": true,
+      "operation": "copy",
+      "src": "D:/Projects/YaoYao/internalapp_serve/apps/system/distribution_order",
+      "dst": "D:/Projects/YaoYao/yy-work-station/tasks/distribution_order",
+      "pattern": "*",
+      "recursive": true,
+      "exclude_folders": [],
+      "exclude_files": [],
+      "include_folders": [],
+      "include_files": ["*.py"]
+    },
+    {
+      "name": "distribution_order_reverse",
+      "enabled": true,
+      "operation": "copy",
+      "src": "D:/Projects/YaoYao/yy-work-station/tasks/distribution_order",
+      "dst": "D:/Projects/YaoYao/internalapp_serve/apps/system/distribution_order",
+      "pattern": "*",
+      "recursive": true,
+      "exclude_folders": ["scripts"],
+      "exclude_files": [],
+      "include_folders": [],
+      "include_files": ["*.py"]
+    }
+  ]
+}
