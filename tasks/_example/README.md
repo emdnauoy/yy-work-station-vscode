@@ -57,7 +57,7 @@ tasks/_example/
 
 ## 分层约定
 
-完整职责表见 `.cursor/rules/api-patterns.mdc` 的"模块分层"小节。本仓三条最易出错的硬约束：
+完整职责表见 `.agent/rules/api-patterns.md` 的"模块分层"小节。本仓三条最易出错的硬约束：
 
 - view 层管事务（`try / commit / rollback`），**service 不 commit**
 - 业务异常一律返回 `{"code": 40000+, ...}` dict，**不 raise HTTPException**
@@ -69,4 +69,4 @@ tasks/_example/
 2. **改业务名**：`models.py` / `schemas.py` / `service.py` / `view/example.py` / `example.sql` 里所有 `example` / `Example` 字样替换成你的业务名。
 3. **挂载到主仓**：以主仓既有方式 include `urls.py` 里的 `router`。
 
-接口约定见 `.cursor/rules/api-patterns.mdc`（编辑 `.py` 时自动加载）。
+接口约定见 `.agent/rules/api-patterns.md`。

@@ -1,8 +1,8 @@
 # tasks — 隔离子任务目录
 
-每个需求一个独立文件夹，互不影响。配套规则在 `.cursor/rules/tasks/`。
+每个需求一个独立文件夹，互不影响。配套规则在 `.agent/rules/tasks/`。
 
-**默认栈**：Python 3.8 · FastAPI · Pydantic v1 · SQLAlchemy 2.0 (async) · MySQL 8.0（详见 `@.cursor/rules/yy-global.mdc`）。
+**默认栈**：Python 3.8 · FastAPI · Pydantic v1 · SQLAlchemy 2.0 (async) · MySQL 8.0（详见 `.agent/rules/yy-global.md`）。
 
 ## 新建任务
 
@@ -19,12 +19,12 @@
 3. **复制并改名规则**：
 
    ```powershell
-   Copy-Item .cursor\rules\tasks\_example.mdc .cursor\rules\tasks\<任务名>.mdc
+   Copy-Item .agent\rules\tasks\_example.md .agent\rules\tasks\<任务名>.md
    ```
 
-   在新 `.mdc` 中将 `_example` 全局替换为 `<任务名>`，确认 frontmatter 的 `globs` 为 `tasks/<任务名>/**`。
+   在新 `.md` 中将 `_example` 全局替换为 `<任务名>`，确认 frontmatter 的 `globs` 为 `tasks/<任务名>/**`。
 
-4. **开始开发**：在 `tasks/<任务名>/` 下改代码；规则按 `globs` 自动附加。手动引用规则在 Chat 输入 `@<任务名>`。
+4. **开始开发**：在 `tasks/<任务名>/` 下改代码；规则按 globs 自动附加。
 
 ## 目录布局
 
@@ -49,10 +49,10 @@ tasks/
 | 正确 | 错误 |
 |------|------|
 | `tasks/fix_login/` | `tasks/fix-login/` |
-| `.cursor/rules/tasks/fix_login.mdc` | `fix-login.mdc` |
+| `.agent/rules/tasks/fix_login.md` | `fix-login.md` |
 
 ## 约束
 
 - **禁止**在一个任务里修改另一个 `tasks/*` 目录。
 - 主仓信息写在任务 `README.md`，**禁止**在本仓虚构主项目路径。
-- 仅 `yy-global` 始终生效；`api-patterns` / `api-i18n` / `api-logging` 编辑 `.py` 时自动加载；`karpathy-guidelines` 按需引用；任务规则按 `globs` 按需加载。
+- `yy-global` / `karpathy-guidelines` 始终生效；`api-patterns` / `api-i18n` / `api-logging` 按需读；任务规则按 globs 附加。

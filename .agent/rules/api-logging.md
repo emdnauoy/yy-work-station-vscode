@@ -6,8 +6,6 @@ globs: tasks/**/view/**/*.py
 
 # 操作日志
 
-> ⚠️ 源文件：`CLAUDE.md`。修改全局规则请同步更新 `CLAUDE.md`。
-
 增改必记，与业务同事务。
 
 ## 函数

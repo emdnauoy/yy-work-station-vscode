@@ -1,6 +1,6 @@
 """接口实现示例：列表 + 增改合一 + 增改分开三种范式。
 
-完整约定见 `.cursor/rules/api-patterns.mdc`。本文件最易出错的三点：
+完整约定见 `.agent/rules/api-patterns.md`。本文件最易出错的三点：
 - 路由绑定不在本文件，统一在 ../urls.py 用调用形式 `api.<method>(path, summary=...)(fn)`
 - view 管事务边界（`await commit` / `await rollback`）；**service 层不 commit**
 - 业务异常 `return {"code": 40000+, "msg": "...", "data": {}}`，**不 raise HTTPException**

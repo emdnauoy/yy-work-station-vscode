@@ -8,17 +8,17 @@ globs: tasks/distribution_order/**
 
 ## 背景
 
-分销订单全生命周期（审批、千易下发、拆单、回款）。产品需求见 `需求文档.md`；方案草案见 `design.md`（含待确认问题 Q1–Q22）。
+分销订单全生命周期（审批、千易下发、拆单、回款）。产品需求见 `需求文档.md`；方案草案见 `design.md`（Q2/Q5/Q6/Q7/Q9 已确认，其余暂定沿用草案倾向）。
 
 ## 允许修改的范围
 
 - **仅** `tasks/distribution_order/` 内文件
-- 对应规则：`.cursor/rules/tasks/distribution_order.mdc`
+- 对应规则：`.agent/rules/tasks/distribution_order.md`
 - **禁止** 修改其他 `tasks/*` 目录及无关全局配置
 
 ## 技术约定
 
-技术栈与代码风格见 `@.cursor/rules/yy-global.mdc` 和 `@.cursor/rules/api-patterns.mdc`，以下仅列本任务**额外**约束：
+技术栈与代码风格见 `.agent/rules/yy-global.md` 和 `.agent/rules/api-patterns.md`，以下仅列本任务**额外**约束：
 
 - **views**：`from core.db.session import get_async_session, get_async_data_session`（**禁止**用任务内 `db.py` stub）；日志 `from loguru import logger`，异常 `logger.error(f"...{e}")` / `logger.exception(...)`
 - **异常返回码**：除 `DistributionOrderError` 外，所有 `except Exception as e:` 兜底分支 **统一返回** `{"code": 40000, ...}`。
@@ -59,12 +59,19 @@ globs: tasks/distribution_order/**
 | 预付/尾款确认 | `uk_order_id(order_id)` | 一单一条确认记录 |
 | 序列表/审批配置 | 见 `schema.sql` | |
 
-## 验收标准
+## 补充约定
 
-- [ ] （待补充）
+- **公共工具函数**：`_orm_out_dict`、`_load_order`、`_mark_delete`、Decimal 工具（`_as_decimal`/`_q2`）等放 `utils.py`，**禁**各 service 重复定义
+- **拆单后缀**：`chr(ord("A") + child_count)` 只支持 26 单，超过需用 `AA/AB/...` 双字母
+- **`from __future__ import annotations`**：本任务 service 文件统一使用，views 不用
+- **列表查询**：条件构建 + 分页逻辑**必须**在 service 层，view 只调 `await list_xxx(session, params)`
 
-## 参考
+## 参考（按需定点读，禁通读）
 
-- 需求文档：@tasks/distribution_order/需求文档.md
-- 方案设计（草案）：@tasks/distribution_order/design.md
-- 全局约定：@.cursor/rules/yy-global.mdc
+| 文件 | 何时读 |
+|------|--------|
+| `tasks/distribution_order/需求文档.md` | 需要产品口径 / 业务规则时 |
+| `tasks/distribution_order/design.md` | 需要表设计或 Q1–Q22 决策时 |
+| `tasks/distribution_order/API_FRONTEND.md` | 需要接口出入参契约时 |
+
+先用关键词 Grep 定位到章节再读该段，**禁**整篇拉进上下文。

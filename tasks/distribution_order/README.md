@@ -31,7 +31,7 @@
 
 ## 技术栈
 
-Python 3.8 · FastAPI · Pydantic v1 · SQLAlchemy 2.0 (async) · MySQL 8.0（约定见 `.cursor/rules/yy-global.mdc`）。
+Python 3.8 · FastAPI · Pydantic v1 · SQLAlchemy 2.0 (async) · MySQL 8.0（约定见 `.agent/rules/yy-global.md`）。
 
 ## 主项目参考
 
@@ -42,4 +42,4 @@ Python 3.8 · FastAPI · Pydantic v1 · SQLAlchemy 2.0 (async) · MySQL 8.0（�
 
 ## 验收标准
 
-以 [design.md §7](./design.md#7-验收标准草案确认后写入-readme--mdc) 为准；定稿后同步到 `.cursor/rules/tasks/distribution_order.mdc`。
+以 [design.md §7](./design.md#7-验收标准草案确认后写入-readme--md) 为准；定稿后同步到 `.agent/rules/tasks/distribution_order.md`。

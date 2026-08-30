@@ -5,9 +5,7 @@ alwaysApply: false
 
 # API 接口参考模板
 
-> ⚠️ 源文件：`CLAUDE.md`。修改全局规则请同步更新 `CLAUDE.md`。
-
-按需 `@api-patterns-ref.mdc` 引用。核心约定见 `@api-patterns.mdc`。
+按需引用。核心约定见 `.agent/rules/api-patterns.md`。
 
 ## 文件头
 
@@ -23,7 +21,7 @@ alwaysApply: false
 
 ## 紧凑书写
 
-单行 ≤ 100 字符。超则换行。
+单行 ≤ 200 字符（含缩进），能放一行就一行，超过再紧凑折行。
 
 - `import`：每行多个符号，**禁**一项一行
 - dict/list/函数参数：少则单行，多则分行
@@ -69,7 +67,7 @@ return {"code": 200, "msg": "获取数据成功", "data": payload}
 ## 增改接口
 
 - 合一 vs 分开：逻辑基本一致 → 合一（按 `body.id` 分支）；差异大 → 拆 add/update；同模块禁混用
-- 操作日志 → `@api-logging.mdc`
+- 操作日志 → `.agent/rules/api-logging.md`
 
 ## 数据库三件套
 

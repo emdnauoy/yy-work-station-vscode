@@ -1,6 +1,6 @@
 """业务逻辑层示例。
 
-分层职责见 `.cursor/rules/api-patterns.mdc` 的"模块分层"小节。
+分层职责见 `.agent/rules/api-patterns.md` 的"模块分层"小节。
 **关键**：service 不 commit / rollback，事务边界由 view 管。
 
 session 是 SQLAlchemy 2.0 `AsyncSession`，所有 SQL 必须 `await`，
