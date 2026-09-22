@@ -10,6 +10,7 @@ alwaysApply: true
 - yy 主项目卫星工作区，小需求拆到 `tasks/<任务名>/`
 - 任务间隔离，**禁**跨目录改代码（除非用户明确要求）
 - 任务名 `snake_case`；目录名、规则文件名、`globs` 三者一致
+- 副本类任务默认以当前工作区文件为准；仅用户明确要求时核验主仓分支、提交和相关文件变更，并把核验结果或「未核验」记入任务 README
 
 ## 技术栈
 
@@ -27,7 +28,7 @@ alwaysApply: true
 
 ## 规则优先级
 
-冲突时：task 规则 > api-patterns/api-logging/data-script > yy-global > karpathy
+冲突时：task 规则 > api-patterns/api-view/db-schema/api-logging/data-script > yy-global > karpathy
 
 ## 规则文件清单
 
@@ -35,7 +36,9 @@ alwaysApply: true
 |------|------|----------|
 | `yy-global.md` | 全仓通用约定 | 始终生效 |
 | `authoring-rules.md` | 规则写法约定 | `.agent/rules/**/*.md` |
-| `api-patterns.md` | API 核心约定（含翻译） | `tasks/**/*.py` |
+| `api-patterns.md` | API 核心约定（分层、路由、Session、鉴权与返回值） | 接口相关 Python 文件 |
+| `api-view.md` | View 事务、异常与翻译 | `tasks/**/view/**/*.py` |
+| `db-schema.md` | 新表/字段的 ORM、Pydantic 与 DDL 约定 | `models.py`、`schemas.py`、`.sql` |
 | `api-logging.md` | 操作日志 | `tasks/**/view/**/*.py` |
 | `api-patterns-ref.md` | 接口参考模板 | 按需引用 |
 | `data-script.md` | 数据脚本约定 | `tasks/**/scripts/**/*.py` 等 |
@@ -62,7 +65,7 @@ alwaysApply: true
 - **先想再写** — 明确假设与困惑，有歧义就问，不默默猜
 - **最小实现** — 只做要求的，不加投机功能/抽象；200 行能写 50 行就重写
 - **外科式改动** — 只碰必须碰的，不顺手重构；自己改动产生的孤儿要清理
-- **目标驱动** — 把需求转成可验证目标，验证通过才算完
+- **目标驱动** — 把需求转成可验证目标，并按风险验证：规则/文案查差异与一致性，局部逻辑验证相关用例与边界，公共逻辑或接口契约变化覆盖受影响链路。回复区分已验证、未验证和待主仓验证项；静态检查不等于集成验证
 
 详细原文见 `.agent/rules/karpathy-guidelines.md`。
 

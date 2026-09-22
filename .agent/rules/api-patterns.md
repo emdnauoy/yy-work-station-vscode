@@ -1,12 +1,12 @@
 ---
-description: API 接口核心约定。分层、路由、Session、鉴权、返回值、View 骨架、翻译、_id 陷阱。
+description: API 接口核心约定。分层、路由、Session、鉴权、返回值与 Pydantic v1。
 alwaysApply: false
-globs: tasks/**/*.py
+globs: tasks/**/urls.py,tasks/**/schemas.py,tasks/**/models.py,tasks/**/view/**/*.py,tasks/**/*service*.py
 ---
 
 # API 接口核心约定
 
-写新接口 / 建表时另读 `.agent/rules/api-patterns-ref.md`（模板与 DB 三件套）；操作日志见 `.agent/rules/api-logging.md`（编辑 view 时读）。
+只约束新增代码；既有接口保持原有事务、错误码和字段契约。独立刷数、回灌、导出、诊断脚本只适用 `.agent/rules/data-script.md`。新接口另读 `.agent/rules/api-patterns-ref.md`；View 事务、异常和翻译见 `.agent/rules/api-view.md`；建表与字段见 `.agent/rules/db-schema.md`；操作日志见 `.agent/rules/api-logging.md`。
 
 ## 分层
 
@@ -43,40 +43,6 @@ globs: tasks/**/*.py
 - 成功：`{"code": 200, "msg": <已翻译文案>, "data": data}`，**禁** `"success"`
 - 异常：`{"code": 40000, "msg": "<描述>", "data": {}}`；所有业务异常统一 40000，**禁**其他错误码，**禁** `raise HTTPException`，HTTP 层始终 200
 - 文件下载（`is_download=1`）→ `StreamingResponse` / `FileResponse`，不套 code/msg/data
-
-## View 骨架
-
-```python
-from loguru import logger
-
-async def some_view(body: SomeIn, inter_session=Depends(get_async_session)):
-    try:
-        result = await some_service(inter_session, body)
-        await inter_session.commit()
-        return {"code": 200, "msg": translate_text("操作成功", is_trans, translation_dict), "data": result}
-    except SomeBusinessError as exc:
-        await inter_session.rollback()
-        return {"code": 40000, "msg": translate_text(exc.msg, is_trans, translation_dict), "data": {}}
-    except Exception as e:
-        await inter_session.rollback()
-        logger.error(f"some_view 失败：{e}")
-        return {"code": 40000, "msg": translate_text("操作失败", is_trans, translation_dict), "data": {}}
-```
-
-业务异常返回 `exc.msg`；兜底异常先 `logger.error(f"<操作>失败：{e}")`（**禁** `%s` 占位）再返回通用文案，**禁**把异常细节暴露给前端。
-
-## 翻译
-
-- 读接口挂 `@translate_all_output`，**禁**再手动 `translate_text`。参数：`modules` 翻译来源模块名；`translatable_fields` 直译字段；`kv_fields` / `v_fields` / `k_fields` 字典翻 key+value / 仅 value / 仅 key；`skip_fields` 至少 `data, pageSize, page, total, page_total, date`；`default_lang` 默认 `cn`
-- 装饰链：`urls` 路由绑定（外）→ `@translate_all_output`（中）→ `async def`（内核）
-- 写接口 `msg` 按请求语言翻译：
-
-```python
-from apps.system.<任务包名>.translate import translate_text
-
-is_trans, translation_dict = get_translaiton_dict_from_request(request, ["<任务包名>", "common", "common_filters", "msg"])
-return {"code": 200, "msg": translate_text("操作成功", is_trans, translation_dict), "data": data}
-```
 
 ## Pydantic v1
 
